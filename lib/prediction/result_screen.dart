@@ -21,7 +21,7 @@ class ResultScreen extends StatelessWidget {
 
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FBFC),
+      backgroundColor: const Color(0xFFF9FAFB),
       body: SafeArea(
         child: Column(
           children: [
@@ -30,7 +30,7 @@ class ResultScreen extends StatelessWidget {
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(20),
                 boxShadow: const [
                   BoxShadow(
                     color: Colors.black12,

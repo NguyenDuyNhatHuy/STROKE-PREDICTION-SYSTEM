@@ -1,38 +1,94 @@
 import 'package:flutter/material.dart';
+import 'package:stroke_prediction/history/prediction_history_detail_screen.dart';
 
 class PredictionHistoryScreen extends StatelessWidget {
   final List<PredictionHistory> histories = [
-    PredictionHistory(date: '01-12-2024', risk: 100, isHighRisk: true),
-    PredictionHistory(date: '01-06-2024', risk: 80, isHighRisk: true),
-    PredictionHistory(date: '01-01-2024', risk: 50, isHighRisk: false),
+    PredictionHistory(
+      date: '01-12-2024',
+      risk: 100,
+      isHighRisk: true,
+      detail: PredictionDetail(
+        age: 65,
+        gender: 'Nam',
+        hypertension: 'Có',
+        heartDisease: 'Không',
+        everMarried: 'Có',
+        workType: 'Nghỉ hưu',
+        residenceType: 'Thành thị',
+        avgGlucoseLevel: 180.5,
+        bmi: 27.3,
+        smokingStatus: 'Đã từng hút',
+      ),
+    ),
+    PredictionHistory(
+      date: '01-06-2024',
+      risk: 80,
+      isHighRisk: true,
+      detail: PredictionDetail(
+        age: 55,
+        gender: 'Nữ',
+        hypertension: 'Không',
+        heartDisease: 'Có',
+        everMarried: 'Có',
+        workType: 'Nhân viên văn phòng',
+        residenceType: 'Nông thôn',
+        avgGlucoseLevel: 150.2,
+        bmi: 24.1,
+        smokingStatus: 'Không rõ',
+      ),
+    ),
+    PredictionHistory(
+      date: '01-01-2024',
+      risk: 50,
+      isHighRisk: false,
+      detail: PredictionDetail(
+        age: 40,
+        gender: 'Nam',
+        hypertension: 'Không',
+        heartDisease: 'Không',
+        everMarried: 'Không',
+        workType: 'Tự doanh',
+        residenceType: 'Thành thị',
+        avgGlucoseLevel: 110.0,
+        bmi: 22.0,
+        smokingStatus: 'Chưa từng hút',
+      ),
+    ),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xfff7f8f9),
+      backgroundColor: const Color(0xFFF9FAFB),
       body: SafeArea(
         child: Column(
           children: [
             // Header
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-              child: Row(
-                children: [
-                  Icon(Icons.arrow_back_ios_new_rounded, size: 28, color: Color(0xff23272f)),
-                  Expanded(
-                    child: Center(
-                      child: Text(
-                        'Lịch sử dự đoán',
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xff23272f),
-                        ),
+              padding: const EdgeInsets.all(16),
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black87),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                    const SizedBox(width: 40),
+                    const Text(
+                      'Lich sử dự đoán',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             Expanded(
@@ -41,7 +97,17 @@ class PredictionHistoryScreen extends StatelessWidget {
                 itemCount: histories.length,
                 itemBuilder: (context, index) {
                   final item = histories[index];
-                  return PredictionCard(item: item);
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => PredictionDetailScreen(detail: item.detail),
+                        ),
+                      );
+                    },
+                    child: PredictionCard(item: item),
+                  );
                 },
               ),
             ),
@@ -56,11 +122,39 @@ class PredictionHistory {
   final String date;
   final int risk;
   final bool isHighRisk;
+  final PredictionDetail detail;
 
   PredictionHistory({
     required this.date,
     required this.risk,
     required this.isHighRisk,
+    required this.detail,
+  });
+}
+
+class PredictionDetail {
+  final int age;
+  final String gender;
+  final String hypertension; // "Có" hoặc "Không"
+  final String heartDisease; // "Có" hoặc "Không"
+  final String everMarried; // "Có" hoặc "Không"
+  final String workType;
+  final String residenceType; // "Nông thôn" hoặc "Thành thị"
+  final double avgGlucoseLevel;
+  final double bmi;
+  final String smokingStatus;
+
+  PredictionDetail({
+    required this.age,
+    required this.gender,
+    required this.hypertension,
+    required this.heartDisease,
+    required this.everMarried,
+    required this.workType,
+    required this.residenceType,
+    required this.avgGlucoseLevel,
+    required this.bmi,
+    required this.smokingStatus,
   });
 }
 
@@ -97,7 +191,11 @@ class PredictionCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(Icons.calendar_today, color: Color(0xff6c6e71), size: 22),
+                  Icon(
+                    Icons.calendar_today,
+                    color: Color(0xff6c6e71),
+                    size: 20,
+                  ),
                   SizedBox(width: 8),
                   Text(
                     item.date,
@@ -110,13 +208,17 @@ class PredictionCard extends StatelessWidget {
               ),
               Row(
                 children: [
-                  Icon(Icons.warning_amber_rounded, color: riskColor, size: 22),
+                  Icon(
+                    Icons.warning_amber_rounded,
+                    color: riskColor,
+                    size: 20,
+                  ),
                   SizedBox(width: 6),
                   Text(
                     riskText,
                     style: TextStyle(
                       fontSize: 18,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.bold,
                       color: riskColor,
                     ),
                   ),

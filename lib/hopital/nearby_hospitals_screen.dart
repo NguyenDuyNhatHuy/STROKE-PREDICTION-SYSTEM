@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:latlong2/latlong.dart';
+import 'dart:math' as math;
 
 class NearbyHospitalsScreen extends StatefulWidget {
   const NearbyHospitalsScreen({super.key});
@@ -20,19 +20,12 @@ class Hospital {
 
 class _NearbyHospitalsScreenState extends State<NearbyHospitalsScreen> {
   LatLng? currentLocation;
+  GoogleMapController? _mapController;
 
-  final List<Hospital> hospitals = [
-    Hospital(
-      name: "Bệnh viện Nhân dân 115",
-      address: "527 Sư Vạn Hạnh, Quận 10, TP.HCM",
-      location: LatLng(10.772622, 106.667997),
-    ),
-    Hospital(
-      name: "Bệnh viện Chợ Rẫy",
-      address: "201B Nguyễn Chí Thanh, Quận 5, TP.HCM",
-      location: LatLng(10.755341, 106.663712),
-    ),
-  ];
+  final List<Hospital> hospitals = [];
+
+  List<MapEntry<Hospital, double>> sortedHospitals = [];
+  int hospitalsToShow = 10;
 
   @override
   void initState() {
@@ -53,91 +46,129 @@ class _NearbyHospitalsScreenState extends State<NearbyHospitalsScreen> {
     );
     setState(() {
       currentLocation = LatLng(position.latitude, position.longitude);
+      _sortHospitalsByDistance();
     });
+  }
+
+  void _sortHospitalsByDistance() {
+    if (currentLocation == null) {
+      sortedHospitals = [];
+      return;
+    }
+    sortedHospitals = hospitals
+        .map((h) => MapEntry(
+              h,
+              _calculateDistance(
+                currentLocation!.latitude,
+                currentLocation!.longitude,
+                h.location.latitude,
+                h.location.longitude,
+              ),
+            ))
+        .toList();
+    sortedHospitals.sort((a, b) => a.value.compareTo(b.value));
+  }
+
+  double _calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+    // Haversine formula
+    const double R = 6371; // Earth radius in km
+    double dLat = _deg2rad(lat2 - lat1);
+    double dLon = _deg2rad(lon2 - lon1);
+    double a = math.sin(dLat / 2) * math.sin(dLat / 2) +
+        math.cos(_deg2rad(lat1)) *
+            math.cos(_deg2rad(lat2)) *
+            math.sin(dLon / 2) *
+            math.sin(dLon / 2);
+    double c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
+    return R * c;
+  }
+
+  double _deg2rad(double deg) {
+    return deg * (math.pi / 180);
+  }
+
+  Set<Marker> _buildMarkers() {
+    final Set<Marker> markers = {};
+    if (currentLocation != null) {
+      markers.add(
+        Marker(
+          markerId: MarkerId('current_location'),
+          position: currentLocation!,
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+          infoWindow: InfoWindow(title: 'Vị trí của bạn'),
+        ),
+      );
+    }
+    for (var entry in sortedHospitals.take(hospitalsToShow)) {
+      final h = entry.key;
+      markers.add(
+        Marker(
+          markerId: MarkerId(h.name),
+          position: h.location,
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+          infoWindow: InfoWindow(title: h.name, snippet: h.address),
+        ),
+      );
+    }
+    return markers;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xfff7f8f9),
+      backgroundColor: const Color(0xFFF9FAFB),
       body: SafeArea(
         child: Column(
           children: [
-            // Header bo góc
+            // Header
             Padding(
               padding: const EdgeInsets.all(16),
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 18),
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.arrow_back_ios_new_rounded, size: 28, color: Color(0xff23272f)),
-                    Expanded(
-                      child: Center(
-                        child: Text(
-                          'Bệnh viện gần đây',
-                          style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xff23272f),
-                          ),
-                        ),
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black87),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                    const SizedBox(width: 40),
+                    const Text(
+                      'Bệnh viện gần đây',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
                       ),
                     ),
                   ],
                 ),
               ),
             ),
-            // Bản đồ bo góc
+            // Google Map
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
                 child: Container(
-                  height: 260,
+                  height: 400,
                   color: Colors.grey[200],
                   child: currentLocation == null
                       ? const Center(child: CircularProgressIndicator())
-                      : FlutterMap(
-                          options: MapOptions(
-                            initialCenter: currentLocation!,
-                            initialZoom: 13,
+                      : GoogleMap(
+                          initialCameraPosition: CameraPosition(
+                            target: currentLocation!,
+                            zoom: 13,
                           ),
-                          children: [
-                            TileLayer(
-                              urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                              subdomains: const ['a', 'b', 'c'],
-                            ),
-                            MarkerLayer(
-                              markers: [
-                                Marker(
-                                  point: currentLocation!,
-                                  width: 40,
-                                  height: 40,
-                                  child: const Icon(
-                                    Icons.person_pin_circle,
-                                    color: Colors.blue,
-                                    size: 40,
-                                  ),
-                                ),
-                                ...hospitals.map(
-                                  (h) => Marker(
-                                    point: h.location,
-                                    width: 36,
-                                    height: 36,
-                                    child: const Icon(
-                                      Icons.local_hospital,
-                                      color: Colors.red,
-                                      size: 36,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
+                          markers: _buildMarkers(),
+                          myLocationEnabled: true,
+                          myLocationButtonEnabled: true,
+                          onMapCreated: (controller) {
+                            _mapController = controller;
+                          },
                         ),
                 ),
               ),
@@ -145,70 +176,108 @@ class _NearbyHospitalsScreenState extends State<NearbyHospitalsScreen> {
             SizedBox(height: 12),
             // Danh sách bệnh viện
             Expanded(
-              child: ListView.builder(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                itemCount: hospitals.length,
-                itemBuilder: (context, index) {
-                  final h = hospitals[index];
-                  return Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    margin: EdgeInsets.only(bottom: 12),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Row(
-                        children: [
-                          Icon(Icons.local_hospital, color: Colors.red, size: 32),
-                          SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  h.name,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 17,
-                                    color: Color(0xff23272f),
-                                  ),
-                                ),
-                                SizedBox(height: 4),
-                                Text(
-                                  h.address,
-                                  style: TextStyle(
-                                    color: Colors.grey[700],
-                                    fontSize: 15,
-                                  ),
-                                ),
-                              ],
-                            ),
+              child: currentLocation == null
+                  ? const Center(child: CircularProgressIndicator())
+                  : (sortedHospitals.isEmpty
+                      ? Center(
+                          child: Text(
+                            'Không có bệnh viện nào.',
+                            style: TextStyle(fontSize: 16, color: Colors.grey),
                           ),
-                          SizedBox(width: 8),
-                          ElevatedButton.icon(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xffaaf0fa),
-                              foregroundColor: Color(0xff23272f),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
+                        )
+                      : Column(
+                          children: [
+                            Expanded(
+                              child: ListView.builder(
+                                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                itemCount: sortedHospitals.length < hospitalsToShow
+                                    ? sortedHospitals.length
+                                    : hospitalsToShow,
+                                itemBuilder: (context, index) {
+                                  final entry = sortedHospitals[index];
+                                  final h = entry.key;
+                                  final distance = entry.value;
+                                  return Card(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    margin: EdgeInsets.only(bottom: 12),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16),
+                                      child: Row(
+                                        children: [
+                                          Icon(Icons.local_hospital, color: Colors.red, size: 32),
+                                          SizedBox(width: 12),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  h.name,
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 17,
+                                                    color: Color(0xff23272f),
+                                                  ),
+                                                ),
+                                                SizedBox(height: 4),
+                                                Text(
+                                                  h.address,
+                                                  style: TextStyle(
+                                                    color: Colors.grey[700],
+                                                    fontSize: 15,
+                                                  ),
+                                                ),
+                                                SizedBox(height: 4),
+                                                Text(
+                                                  'Cách bạn: ${distance.toStringAsFixed(2)} km',
+                                                  style: TextStyle(
+                                                    color: Colors.blueGrey,
+                                                    fontSize: 13,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          SizedBox(width: 8),
+                                          ElevatedButton.icon(
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Color(0xffaaf0fa),
+                                              foregroundColor: Color(0xff23272f),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(8),
+                                              ),
+                                            ),
+                                            onPressed: () {
+                                              final lat = h.location.latitude;
+                                              final lng = h.location.longitude;
+                                              final url = 'https://www.google.com/maps/dir/?api=1&destination=$lat,$lng';
+                                              // Sử dụng url_launcher để mở url nếu muốn
+                                            },
+                                            icon: Icon(Icons.directions, size: 20),
+                                            label: Text('Chỉ đường'),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
                               ),
                             ),
-                            onPressed: () {
-                              // Mở Google Maps chỉ đường
-                              final lat = h.location.latitude;
-                              final lng = h.location.longitude;
-                              final url = 'https://www.google.com/maps/dir/?api=1&destination=$lat,$lng';
-                              // Sử dụng url_launcher để mở url nếu muốn
-                            },
-                            icon: Icon(Icons.directions, size: 20),
-                            label: Text('Chỉ đường'),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
+                            if (hospitalsToShow < sortedHospitals.length)
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 16),
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      hospitalsToShow += 10;
+                                    });
+                                  },
+                                  child: Text('Xem thêm'),
+                                ),
+                              ),
+                          ],
+                        )),
             ),
           ],
         ),

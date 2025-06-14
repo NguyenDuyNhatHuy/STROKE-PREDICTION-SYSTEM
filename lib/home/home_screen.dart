@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:stroke_prediction/history/prediction_history_screen.dart';
 import 'package:stroke_prediction/hopital/nearby_hospitals_screen.dart';
+import 'package:stroke_prediction/info/stroke_info_screen.dart';
 import 'package:stroke_prediction/prediction/stroke_prediction_screen.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -129,7 +130,10 @@ class HomeScreen extends StatelessWidget {
                       title: 'Thông tin về đột quỵ.',
                       subtitle: 'Tìm hiểu về phòng ngừa đột quỵ.',
                       onTap: () {
-                        // TODO: Navigate to stroke info
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => StrokeInfoScreen()),
+                        );
                       },
                     ),
                   ],

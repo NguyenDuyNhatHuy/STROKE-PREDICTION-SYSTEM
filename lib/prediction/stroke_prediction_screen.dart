@@ -25,7 +25,7 @@ class _StrokePredictionFormState extends State<StrokePredictionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FBFC),
+      backgroundColor: const Color(0xFFF9FAFB),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -36,7 +36,7 @@ class _StrokePredictionFormState extends State<StrokePredictionScreen> {
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(20),
                   boxShadow: const [
                     BoxShadow(
                       color: Colors.black12,
@@ -51,11 +51,11 @@ class _StrokePredictionFormState extends State<StrokePredictionScreen> {
                       icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black87),
                       onPressed: () => Navigator.of(context).pop(),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 40),
                     const Text(
                       'Dự đoán đột quỵ',
                       style: TextStyle(
-                        fontSize: 20,
+                        fontSize: 24,
                         fontWeight: FontWeight.bold,
                         color: Colors.black87,
                       ),
@@ -134,8 +134,9 @@ class _StrokePredictionFormState extends State<StrokePredictionScreen> {
                         items: {
                           'Children': 'Trẻ em',
                           'Govt job': 'Công chức',
-                          'Self-employed': 'Tự làm',
+                          'Self-employed': 'Tự kinh doanh',
                           'Private': 'Tư nhân',
+                          'Never worked': 'Thất nghiệp',
                         },
                         onChanged: (value) => setState(() => workType = value),
                         hint: 'Chọn công việc',

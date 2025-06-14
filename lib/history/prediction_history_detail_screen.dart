@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:stroke_prediction/history/prediction_history_screen.dart';
 
 class PredictionDetailScreen extends StatelessWidget {
   final PredictionDetail detail;
@@ -8,33 +9,36 @@ class PredictionDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xfff7f8f9),
+      backgroundColor: const Color(0xFFF9FAFB),
       body: SafeArea(
         child: Column(
           children: [
             // Header
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-              child: Row(
-                children: [
-                  Icon(Icons.arrow_back, size: 28, color: Color(0xff23272f)),
-                  Expanded(
-                    child: Center(
-                      child: Text(
-                        'Dự đoán đột quỵ',
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xff23272f),
-                        ),
+              padding: const EdgeInsets.all(16),
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black87),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                    const SizedBox(width: 40),
+                    const Text(
+                      'Chi tiết dự đoán',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
                       ),
                     ),
-                  ),
-                  Opacity(
-                    opacity: 0,
-                    child: Icon(Icons.arrow_back, size: 28),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             Expanded(
@@ -163,31 +167,4 @@ class PredictionDetailScreen extends StatelessWidget {
       ),
     );
   }
-}
-
-// Model dữ liệu
-class PredictionDetail {
-  final int age;
-  final String gender;
-  final String hypertension; // "Có" hoặc "Không"
-  final String heartDisease; // "Có" hoặc "Không"
-  final String everMarried; // "Có" hoặc "Không"
-  final String workType;
-  final String residenceType; // "Nông thôn" hoặc "Thành thị"
-  final double avgGlucoseLevel;
-  final double bmi;
-  final String smokingStatus;
-
-  PredictionDetail({
-    required this.age,
-    required this.gender,
-    required this.hypertension,
-    required this.heartDisease,
-    required this.everMarried,
-    required this.workType,
-    required this.residenceType,
-    required this.avgGlucoseLevel,
-    required this.bmi,
-    required this.smokingStatus,
-  });
 }
