@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "958409233000",
+    "project_id": "stroke-prediction-system-12f34",
+    "storage_bucket": "stroke-prediction-system-12f34.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:958409233000:android:0d578ac49f2e309a99e1dd",
+        "android_client_info": {
+          "package_name": "com.amphenol.strokepredictor"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAGyCMsHVRaIMMcUfx0Wf_4Kl_YlIdYlws"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

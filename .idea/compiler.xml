@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <bytecodeTargetLevel>
+      <module name="android.flutter_plugin_android_lifecycle" target="23" />
+      <module name="android.geolocator_android" target="23" />
+      <module name="android.google_maps_flutter_android" target="23" />
+    </bytecodeTargetLevel>
+  </component>
+</project>
