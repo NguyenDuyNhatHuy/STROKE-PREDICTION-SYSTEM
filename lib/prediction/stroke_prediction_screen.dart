@@ -1,5 +1,12 @@
+import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
 import 'package:stroke_prediction/prediction/result_screen.dart';
+import 'package:stroke_prediction/db/database.dart';
+import 'package:stroke_prediction/db/daos/prediction_dao.dart';
+import 'package:stroke_prediction/main.dart';
+import '../providers/user_provider.dart';
+import 'package:provider/provider.dart';
+import 'package:stroke_prediction/tflite/stroke_predictor.dart';
 
 class StrokePredictionScreen extends StatefulWidget {
   const StrokePredictionScreen({super.key});
@@ -14,6 +21,7 @@ class _StrokePredictionFormState extends State<StrokePredictionScreen> {
   final TextEditingController glucoseController = TextEditingController();
   final TextEditingController bmiController = TextEditingController();
 
+
   String? gender;
   String? hypertension;
   String? heartDisease;
@@ -24,6 +32,7 @@ class _StrokePredictionFormState extends State<StrokePredictionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final userId = Provider.of<UserProvider>(context, listen: false).userId;
     return Scaffold(
       backgroundColor: const Color(0xFFF9FAFB),
       body: SafeArea(
@@ -195,12 +204,62 @@ class _StrokePredictionFormState extends State<StrokePredictionScreen> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          onPressed: () {
-                            //if (_formKey.currentState!.validate()) {
-                              Navigator.push(context, MaterialPageRoute(
-                                builder: (_) => const ResultScreen(hasRisk: false),
-                              ));
-                            //}
+                          onPressed: () async {
+                            if (_formKey.currentState!.validate()) {
+                              int genderValue;
+                              switch (gender) {
+                                case 'Female': genderValue = 0; break;
+                                case 'Male': genderValue = 1; break;
+                                case 'Other': genderValue = 2; break;
+                                default: genderValue = 0; // fallback
+                              }
+                              int everMarriedValue = (everMarried == 'Yes') ? 1 : 0;
+                              int workTypeValue;
+                              switch (workType) {
+                                case 'Children': workTypeValue = 0; break;
+                                case 'Govt job': workTypeValue = 1; break;
+                                case 'Never worked': workTypeValue = 2; break;
+                                case 'Private': workTypeValue = 3; break;
+                                case 'Self-employed': workTypeValue = 4; break;
+                                default: workTypeValue = 3; // fallback Private
+                              }
+                              int residenceValue = (residence == 'Urban') ? 1 : 0;
+                              int smokingValue;
+                              switch (smokingStatus) {
+                                case 'Formerly Smoked': smokingValue = 0; break;
+                                case 'Never Smoked': smokingValue = 1; break;
+                                case 'Smokes': smokingValue = 2; break;
+                                case 'Unknown': smokingValue = 3; break;
+                                default: smokingValue = 1; // fallback Never Smoked
+                              }
+                              final input = [
+                                genderValue.toDouble(),
+                                double.parse(ageController.text),
+                                double.parse(hypertension!),
+                                double.parse(heartDisease!),
+                                everMarriedValue.toDouble(),
+                                workTypeValue.toDouble(),
+                                residenceValue.toDouble(),
+                                double.parse(glucoseController.text),
+                                double.parse(bmiController.text),
+                                smokingValue.toDouble(),
+                              ];
+                              try {
+                                final predictor = await StrokePredictor.create();
+                                final hasRisk = await predictor.predict(input);
+                                print('Kết quả dự đoán: $hasRisk');
+                                await _savePrediction(hasRisk);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => ResultScreen(hasRisk: hasRisk),
+                                  ),
+                                );
+                              } catch (e) {
+                                print('Lỗi khi chạy mô hình: $e');
+                                // Hiển thị thông báo lỗi lên UI nếu muốn
+                              }
+                            }
                           },
                         ),
                       )
@@ -311,5 +370,24 @@ class _StrokePredictionFormState extends State<StrokePredictionScreen> {
         ),
       ),
     );
+  }
+  Future<void> _savePrediction(bool hasRisk) async {
+    final userId = Provider.of<UserProvider>(context, listen: false).userId;
+    final prediction = PredictionHistoriesCompanion(
+      userId: Value(userId!),
+      gender: Value(gender!),
+      age: Value(int.parse(ageController.text)),
+      hypertension: Value(int.parse(hypertension!)),
+      heartDisease: Value(int.parse(heartDisease!)),
+      everMarried: Value(everMarried!),
+      workType: Value(workType!),
+      residenceType: Value(residence!),
+      avgGlucoseLevel: Value(double.parse(glucoseController.text)),
+      bmi: Value(double.parse(bmiController.text)),
+      smokingStatus: Value(smokingStatus!),
+      stroke: Value(hasRisk),
+    );
+
+    await db.predictionDao.insertPrediction(prediction);
   }
 }

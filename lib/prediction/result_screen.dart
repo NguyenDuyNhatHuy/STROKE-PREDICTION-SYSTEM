@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:stroke_prediction/hopital/nearby_hospitals_screen.dart';
 
+
 class ResultScreen extends StatelessWidget {
   final bool hasRisk;
 

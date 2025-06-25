@@ -1,48 +1,50 @@
 plugins {
-    id("com.android.application")
-    id("kotlin-android")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
-    id("dev.flutter.flutter-gradle-plugin")
+    id("com.android.application")          // plugin Android
+    id("org.jetbrains.kotlin.android")     // Kotlin (không ghi version)
+    id("dev.flutter.flutter-gradle-plugin")// Flutter plugin (phải sau Android/Kotlin)
+    id("com.google.gms.google-services")   // Google-services (Firebase)
 }
 
 android {
-    namespace = "com.example.stroke_prediction"
+    namespace = "com.amphenol.strokepredictor"
+
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-
-    }
-
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
-    }
+    ndkVersion = "27.0.12077973"
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.stroke_prediction"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        applicationId = "com.amphenol.strokepredictor"
+        minSdk = 26
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
 
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+        // Enable desugaring for java.time.* etc.
+        isCoreLibraryDesugaringEnabled = true
+    }
+    kotlinOptions { jvmTarget = "11" }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
+            // dùng keystore debug tạm (đổi khi phát hành)
             signingConfig = signingConfigs.getByName("debug")
+            // bật shrinkResources / minify nếu cần
         }
     }
 }
 
-flutter {
-    source = "../.."
-}
+flutter { source = "../.." }
+
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+
+    // Firebase BoM giữ tất cả libs đồng bộ phiên bản
+    implementation(platform("com.google.firebase:firebase-bom:33.15.0"))
+    implementation("com.google.firebase:firebase-analytics-ktx")
+    // thêm Auth / Firestore / Functions nếu cần
+    // implementation("com.google.firebase:firebase-auth-ktx")
+    // implementation("com.google.firebase:firebase-firestore-ktx")
 }

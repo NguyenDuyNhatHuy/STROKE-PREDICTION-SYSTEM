@@ -1,4 +1,4 @@
-package com.example.stroke_prediction
+package com.amphenol.strokepredictor
 
 import io.flutter.embedding.android.FlutterActivity
 
