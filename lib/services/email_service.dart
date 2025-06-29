@@ -2,49 +2,36 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class EmailService {
-  static const String _webAppUrl =
-      'https://script.google.com/macros/s/AKfycbyyyPL9tg8ocQwexLCdy2evCN4VqeOIAXr0c97-ZtvQBnz6Jg2l9qZu4t9IbouG7FrJzA/exec';
+  // URL bạn đã deploy
+  static const _scriptUrl = 'https://script.google.com/macros/s/AKfycbwzcTOzBkBebw1tSWC18Vcn4ub93Ef3MNcVXu1pcMi-wjgvQOkkqFpVSte63g_Jgu8/exec';
+  final http.Client _client;
 
-  /// Gửi OTP
-  Future<bool> sendOtp({
+  EmailService([http.Client? client]) : _client = client ?? http.Client();
+
+  /// Gửi OTP về email
+  /// [email]: địa chỉ người nhận
+  /// [code]: chuỗi 6 chữ số
+  Future<void> sendOtp({
     required String email,
     required String code,
   }) async {
-    final response = await http.post(
-      Uri.parse(_webAppUrl),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'email': email,
-        'subject': 'Mã xác nhận của bạn',
-        'body': 'Mã OTP: $code',
-      }),
-    );
-    if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
-      return json['result'] == 'ok';
-    }
-    throw Exception('Error ${response.statusCode}: ${response.body}');
-  }
+    final subject = 'Your OTP Code';
+    final body    = 'Mã OTP của bạn là: $code';
 
-  /// Gửi thông báo chung (nếu cần)
-  Future<bool> sendNotification({
-    required String email,
-    required String title,
-    required String message,
-  }) async {
-    final response = await http.post(
-      Uri.parse(_webAppUrl),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'email': email,
-        'subject': title,
-        'body': message,
-      }),
-    );
-    if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
-      return json['result'] == 'ok';
+    final uri = Uri.parse(_scriptUrl).replace(queryParameters: {
+      'email'  : email,
+      'subject': subject,
+      'body'   : body,
+    });
+
+    final resp = await _client.get(uri);
+    if (resp.statusCode != 200) {
+      throw Exception('HTTP error: ${resp.statusCode}');
     }
-    throw Exception('Error ${response.statusCode}: ${response.body}');
+
+    final data = json.decode(resp.body) as Map<String, dynamic>;
+    if (data['result'] != 'ok') {
+      throw Exception('Lỗi từ server: ${data['message'] ?? 'Unknown'}');
+    }
   }
 }

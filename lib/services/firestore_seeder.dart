@@ -2,83 +2,58 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirestoreSeeder {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
+  final String _otpCollection = 'emailOtps';
 
-  // Seed nhiều bản ghi predictionHistories một lần
-  Future<void> seedPredictions(List<Map<String, dynamic>> data) async {
-    final batch = _db.batch();
-    final col   = _db.collection('predictionHistories');
-    for (var record in data) {
-      final docRef = col.doc();
-      batch.set(docRef, {
-        ...record,
-        'createdAt': FieldValue.serverTimestamp(),
-      });
-    }
-    await batch.commit();
-  }
-
-  // Thêm user vào 'users' (không lưu mật khẩu thô)
-  Future<void> addUser({
-    required String userId,
-    required String name,
-    required String email,
-  }) {
-    return _db.collection('users').doc(userId).set({
-      'name': name,
-      'email': email,
-      'createdAt': FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true));
-  }
+  /// Lưu OTP vào Firestore, hết hạn sau 15 phút
   Future<void> saveOtp({
     required String userId,
     required String code,
-  }) {
-    return _db.collection('emailOtps').doc(userId).set({
-      'code': code,
-      'expiresAt': DateTime.now().add(const Duration(minutes: 10)),
-    });
+    Duration expiresIn = const Duration(minutes: 15),
+  }) async {
+    final expiry = DateTime.now().add(expiresIn);
+    await _db
+        .collection(_otpCollection)
+        .doc(userId)
+        .set({'code': code, 'expiresAt': Timestamp.fromDate(expiry)});
   }
 
+  /// Verify OTP, in ra log chi tiết nếu fail
   Future<bool> verifyOtp({
-    required String userId,
+    String? userId,
+    String? otpKey,
     required String code,
   }) async {
-    final doc = await _db.collection('emailOtps').doc(userId).get();
-    if (!doc.exists) return false;
-    final data = doc.data()!;
-    final expires = (data['expiresAt'] as Timestamp).toDate();
-    if (DateTime.now().isAfter(expires)) return false;
-    return data['code'] == code;
-  }
-  // Thêm một bản ghi prediction mới
-  Future<void> addPrediction({
-    required String userId,
-    required String gender,
-    required int age,
-    required bool hypertension,
-    required bool heartDisease,
-    required String everMarried,
-    required String workType,
-    required String residenceType,
-    required double avgGlucoseLevel,
-    required double bmi,
-    required String smokingStatus,
-    required bool stroke,
-  }) {
-    return _db.collection('predictionHistories').add({
-      'userId': userId,
-      'gender': gender,
-      'age': age,
-      'hypertension': hypertension,
-      'heartDisease': heartDisease,
-      'everMarried': everMarried,
-      'workType': workType,
-      'residenceType': residenceType,
-      'avgGlucoseLevel': avgGlucoseLevel,
-      'bmi': bmi,
-      'smokingStatus': smokingStatus,
-      'stroke': stroke,
-      'createdAt': FieldValue.serverTimestamp(),
-    });
+    final key = userId ?? otpKey;
+    if (key == null) {
+      print('🔴 verifyOtp: missing key');
+      return false;
+    }
+
+    final snap = await _db.collection(_otpCollection).doc(key).get();
+    if (!snap.exists) {
+      print('🔴 verifyOtp: no document for key=$key');
+      return false;
+    }
+
+    final data   = snap.data()!;
+    final stored = data['code'] as String;
+    final expiry = (data['expiresAt'] as Timestamp).toDate();
+    final now    = DateTime.now();
+
+    print('ℹ️ verifyOtp: key=$key, stored="$stored", '
+        'input="${code.trim()}", expiry=$expiry, now=$now');
+
+    if (stored != code.trim()) {
+      print('🔴 verifyOtp: code mismatch');
+      return false;
+    }
+    if (now.isAfter(expiry)) {
+      print('🔴 verifyOtp: expired (now>$expiry)');
+      return false;
+    }
+
+    // Xoá document sau khi verify thành công
+    await _db.collection(_otpCollection).doc(key).delete();
+    return true;
   }
 }

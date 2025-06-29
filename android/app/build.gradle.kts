@@ -47,4 +47,5 @@ dependencies {
     // thêm Auth / Firestore / Functions nếu cần
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx")
+    implementation ("com.google.android.gms:play-services-base:18.7.0")
 }
