@@ -192,12 +192,17 @@ class PredictionCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(4),
                 ),
               ),
-              Container(
-                height: 8,
-                width: MediaQuery.of(context).size.width * 0.825 * (risk / 100),
-                decoration: BoxDecoration(
-                  color: riskColor,
-                  borderRadius: BorderRadius.circular(4),
+              FractionallySizedBox(
+                alignment: Alignment.centerLeft,
+                widthFactor: (riskProbability != null)
+                    ? (riskProbability!.clamp(0.0, 1.0))
+                    : 0.0,
+                child: Container(
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: riskColor,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
                 ),
               ),
             ],
