@@ -1,0 +1,162 @@
+[
+  {
+    "name": "Bệnh viện Bạch Mai",
+    "address": "78 Giải Phóng, Phương Mai, Đống Đa, Hà Nội",
+    "location": {
+      "latitude": 21.0101,
+      "longitude": 105.8542
+    }
+  },
+  {
+    "name": "Bệnh viện Xanh Pôn",
+    "address": "12 Chu Văn An, Điện Biên, Ba Đình, Hà Nội",
+    "location": {
+      "latitude": 21.0333,
+      "longitude": 105.8346
+    }
+  },
+  {
+    "name": "Bệnh viện Đại học Y Hà Nội",
+    "address": "1 Tôn Thất Tùng, Đống Đa, Hà Nội",
+    "location": {
+      "latitude": 21.0043,
+      "longitude": 105.8423
+    }
+  },
+  {
+    "name": "Bệnh viện E",
+    "address": "89 Trần Cung, Nghĩa Tân, Cầu Giấy, Hà Nội",
+    "location": {
+      "latitude": 21.0368,
+      "longitude": 105.7895
+    }
+  },
+  {
+    "name": "Bệnh viện Hữu Nghị Việt – Xô",
+    "address": "1 Trần Khánh Dư, Hai Bà Trưng, Hà Nội",
+    "location": {
+      "latitude": 21.0055,
+      "longitude": 105.853
+    }
+  },
+  {
+    "name": "Bệnh viện Trung ương Quân đội 108",
+    "address": "1 Trần Hưng Đạo, Hai Bà Trưng, Hà Nội",
+    "location": {
+      "latitude": 21.0022,
+      "longitude": 105.8467
+    }
+  },
+  {
+    "name": "Bệnh viện Quân Y 103",
+    "address": "261 Phùng Hưng, Hà Đông, Hà Nội",
+    "location": {
+      "latitude": 20.9595,
+      "longitude": 105.7847
+    }
+  },
+  {
+    "name": "Bệnh viện 19-8",
+    "address": "9 Trần Bình, Cầu Giấy, Hà Nội",
+    "location": {
+      "latitude": 21.0395,
+      "longitude": 105.7785
+    }
+  },
+  {
+    "name": "Bệnh viện Tim Hà Nội (cơ sở 2)",
+    "address": "Võ Chí Công, Tây Hồ, Hà Nội",
+    "location": {
+      "latitude": 21.0719,
+      "longitude": 105.7835
+    }
+  },
+  {
+    "name": "Bệnh viện Thanh Nhàn",
+    "address": "42 Thanh Nhàn, Hai Bà Trưng, Hà Nội",
+    "location": {
+      "latitude": 21.0107,
+      "longitude": 105.8549
+    }
+  },
+  {
+    "name": "Bệnh viện Quân Y 175",
+    "address": "786 Nguyễn Kiệm, Gò Vấp, TP.HCM",
+    "location": {
+      "latitude": 10.8184,
+      "longitude": 106.6808
+    }
+  },
+  {
+    "name": "Bệnh viện Đại học Y Dược TP.HCM",
+    "address": "215‑217 Hồng Bàng, Quận 5, TP.HCM",
+    "location": {
+      "latitude": 10.7602,
+      "longitude": 106.661
+    }
+  },
+  {
+    "name": "Bệnh viện Nhân Dân 115",
+    "address": "527 Sư Vạn Hạnh, Quận 10, TP.HCM",
+    "location": {
+      "latitude": 10.78,
+      "longitude": 106.665
+    }
+  },
+  {
+    "name": "Bệnh viện Gia Định",
+    "address": "1 Nơ Trang Long, Bình Thạnh, TP.HCM",
+    "location": {
+      "latitude": 10.8034,
+      "longitude": 106.7059
+    }
+  },
+  {
+    "name": "Bệnh viện Nguyễn Tri Phương",
+    "address": "468 Nguyễn Trãi, Quận 5, TP.HCM",
+    "location": {
+      "latitude": 10.7594,
+      "longitude": 106.6649
+    }
+  },
+  {
+    "name": "Bệnh viện Thống Nhất",
+    "address": "1 Lý Thường Kiệt, Tân Bình, TP.HCM",
+    "location": {
+      "latitude": 10.7894,
+      "longitude": 106.65
+    }
+  },
+  {
+    "name": "Bệnh viện Hoàn Mỹ Sài Gòn",
+    "address": "60‑60A Phan Xích Long, Phú Nhuận, TP.HCM",
+    "location": {
+      "latitude": 10.803,
+      "longitude": 106.6882
+    }
+  },
+  {
+    "name": "Bệnh viện Xuyên Á (Củ Chi)",
+    "address": "42 QL22, Ấp Chợ, Củ Chi, TP.HCM",
+    "location": {
+      "latitude": 10.9978,
+      "longitude": 106.5925
+    }
+  },
+  {
+    "name": "Bệnh viện S.I.S Cần Thơ",
+    "address": "397 Nguyễn Văn Cừ, An Bình, Ninh Kiều, Cần Thơ",
+    "location": {
+      "latitude": 10.0341,
+      "longitude": 105.7679
+    }
+  },
+  {
+    "name": "Bệnh viện Đà Nẵng",
+    "address": "124 Hải Phòng, Hải Châu, Đà Nẵng",
+    "location": {
+      "latitude": 16.0678,
+      "longitude": 108.2227
+    }
+  }
+]

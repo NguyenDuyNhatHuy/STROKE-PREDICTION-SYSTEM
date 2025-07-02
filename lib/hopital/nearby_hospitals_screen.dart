@@ -3,6 +3,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:math' as math;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:stroke_prediction/services/firestore_seeder.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class NearbyHospitalsScreen extends StatefulWidget {
   const NearbyHospitalsScreen({super.key});
@@ -17,6 +19,18 @@ class Hospital {
   final LatLng location;
 
   Hospital({required this.name, required this.address, required this.location});
+
+  factory Hospital.fromFirestore(Map<String, dynamic> data) {
+    final location = data['location'] as Map<String, dynamic>?;
+    return Hospital(
+      name: data['name'] ?? '',
+      address: data['address'] ?? '',
+      location: LatLng(
+        (location?['latitude'] as num?)?.toDouble() ?? 0.0,
+        (location?['longitude'] as num?)?.toDouble() ?? 0.0,
+      ),
+    );
+  }
 }
 
 class _NearbyHospitalsScreenState extends State<NearbyHospitalsScreen> {
@@ -32,6 +46,7 @@ class _NearbyHospitalsScreenState extends State<NearbyHospitalsScreen> {
   void initState() {
     super.initState();
     _getCurrentLocation();
+    _fetchHospitalsFromFirestore();
   }
 
   Future<void> _getCurrentLocation() async {
@@ -47,6 +62,16 @@ class _NearbyHospitalsScreenState extends State<NearbyHospitalsScreen> {
     );
     setState(() {
       currentLocation = LatLng(position.latitude, position.longitude);
+      _sortHospitalsByDistance();
+    });
+  }
+
+  Future<void> _fetchHospitalsFromFirestore() async {
+    final seeder = FirestoreSeeder();
+    final data = await seeder.fetchHospitals();
+    setState(() {
+      hospitals.clear();
+      hospitals.addAll(data.map((e) => Hospital.fromFirestore(e)));
       _sortHospitalsByDistance();
     });
   }
@@ -199,6 +224,7 @@ class _NearbyHospitalsScreenState extends State<NearbyHospitalsScreen> {
                                   final h = entry.key;
                                   final distance = entry.value;
                                   return Card(
+                                    color: Colors.white, // Đặt màu nền là trắng
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(16),
                                     ),
@@ -249,11 +275,17 @@ class _NearbyHospitalsScreenState extends State<NearbyHospitalsScreen> {
                                                 borderRadius: BorderRadius.circular(8),
                                               ),
                                             ),
-                                            onPressed: () {
+                                            onPressed: () async {
                                               final lat = h.location.latitude;
                                               final lng = h.location.longitude;
-                                              final url = 'https://www.google.com/maps/dir/?api=1&destination=$lat,$lng';
-                                              // Sử dụng url_launcher để mở url nếu muốn
+                                              final url = Uri.parse('https://www.google.com/maps/dir/?api=1&destination=$lat,$lng');
+                                              if (await canLaunchUrl(url)) {
+                                                await launchUrl(url, mode: LaunchMode.externalApplication);
+                                              } else {
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  SnackBar(content: Text('Không thể mở Google Maps')),
+                                                );
+                                              }
                                             },
                                             icon: Icon(Icons.directions, size: 20),
                                             label: Text('Chỉ đường'),
@@ -265,18 +297,7 @@ class _NearbyHospitalsScreenState extends State<NearbyHospitalsScreen> {
                                 },
                               ),
                             ),
-                            if (hospitalsToShow < sortedHospitals.length)
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 16),
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      hospitalsToShow += 10;
-                                    });
-                                  },
-                                  child: Text('Xem thêm'),
-                                ),
-                              ),
+
                           ],
                         )),
             ),

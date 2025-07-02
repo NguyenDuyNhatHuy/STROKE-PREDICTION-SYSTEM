@@ -56,4 +56,10 @@ class FirestoreSeeder {
     await _db.collection(_otpCollection).doc(key).delete();
     return true;
   }
+
+  /// Lấy danh sách bệnh viện từ Firestore
+  Future<List<Map<String, dynamic>>> fetchHospitals() async {
+    final snapshot = await _db.collection('hospitals').get();
+    return snapshot.docs.map((doc) => doc.data()).toList();
+  }
 }
