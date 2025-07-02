@@ -374,15 +374,38 @@ class _StrokePredictionFormState extends State<StrokePredictionScreen> {
   }) {
     return DropdownButtonFormField<String>(
       value: value,
-      hint: Text(hint),
+      hint: Text(hint, style: TextStyle(fontSize: 15.sp, color: Colors.grey[600])),
       items: items.entries
-          .map((e) => DropdownMenuItem(value: e.key, child: Text(e.value)))
+          .map((e) => DropdownMenuItem(
+                value: e.key,
+                child: Text(
+                  e.value,
+                  style: TextStyle(fontSize: 15.sp),
+                ),
+              ))
           .toList(),
       onChanged: onChanged,
       decoration: InputDecoration(
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: Colors.grey.shade300, width: 1.2),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: Colors.grey.shade300, width: 1.2),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: Color(0xFF7CE5ED), width: 1.5),
+        ),
+        contentPadding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 14.h),
       ),
+      icon: Icon(Icons.keyboard_arrow_down_rounded, color: Colors.black54, size: 28.w),
+      dropdownColor: Colors.white,
+      style: TextStyle(fontSize: 15.sp, color: Colors.black87),
+      elevation: 4,
       validator: (value) => value == null ? 'Vui lòng chọn' : null,
     );
   }

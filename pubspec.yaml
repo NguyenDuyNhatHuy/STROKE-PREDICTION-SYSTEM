@@ -49,6 +49,7 @@ dependencies:
   flutter_screenutil: ^5.9.0
   shared_preferences: ^2.2.2
   url_launcher: ^6.2.5
+  flutter_launcher_icons: ^0.14.4
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -102,3 +103,10 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/logo_stroke_prediction_ori.png"
+  min_sdk_android: 21
+  adaptive_icon_foreground: "assets/images/logo_stroke_prediction_ori.png"
+  adaptive_icon_background: "#FFFFFF"
